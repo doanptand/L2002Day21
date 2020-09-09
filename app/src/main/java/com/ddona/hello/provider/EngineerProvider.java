@@ -81,12 +81,49 @@ public class EngineerProvider extends ContentProvider {
     }
 
     @Override
-    public int delete(@NonNull Uri uri, @Nullable String s, @Nullable String[] strings) {
-        return 0;
+    public int delete(Uri uri, String selection, String[] selectionArgs) {
+        SQLiteDatabase db = sqLiteHelper.getWritableDatabase();
+        int count = 0;
+        switch (URI_MATCHER.match(uri)) {
+            case URI_TABLE:
+                count = db.delete(EngineerSQLiteHelper.ENGINEER_TABLE, selection, selectionArgs);
+                break;
+            case URI_ID:
+                String id = uri.getPathSegments().get(1);
+                String where = EngineerSQLiteHelper.ID + " = '" + id + "'";
+                if (selection != null) {
+                    where = where + " and " + selection;
+                }
+                count = db.delete(EngineerSQLiteHelper.ENGINEER_TABLE, where, selectionArgs);
+                break;
+            default:
+                break;
+        }
+        getContext().getContentResolver().notifyChange(uri, null);
+        return count;
     }
 
     @Override
-    public int update(@NonNull Uri uri, @Nullable ContentValues contentValues, @Nullable String s, @Nullable String[] strings) {
-        return 0;
+    public int update(Uri uri, ContentValues values, String selection,
+                      String[] selectionArgs) {
+        SQLiteDatabase db = sqLiteHelper.getWritableDatabase();
+        int count = 0;
+        switch (URI_MATCHER.match(uri)) {
+            case URI_TABLE:
+                count = db.update(EngineerSQLiteHelper.ENGINEER_TABLE, values, selection, selectionArgs);
+                break;
+            case URI_ID:
+                String id = uri.getPathSegments().get(1);
+                String where = EngineerSQLiteHelper.ID + " = '" + id + "'";
+                if (selection != null) {
+                    where = where + " and " + selection;
+                }
+                count = db.update(EngineerSQLiteHelper.ENGINEER_TABLE, values, where, selectionArgs);
+                break;
+            default:
+                break;
+        }
+        getContext().getContentResolver().notifyChange(uri, null);
+        return count;
     }
 }
