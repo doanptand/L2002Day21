@@ -6,6 +6,7 @@ import android.content.ContentValues;
 import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 import android.util.Log;
 
@@ -39,8 +40,20 @@ public class EngineerProvider extends ContentProvider {
 
     @Nullable
     @Override
-    public Cursor query(@NonNull Uri uri, @Nullable String[] strings, @Nullable String s, @Nullable String[] strings1, @Nullable String s1) {
-        return null;
+    public Cursor query(@NonNull Uri uri, @Nullable String[] projections,
+                        @Nullable String selections, @Nullable String[] selectionArgs,
+                        @Nullable String sortOrder) {
+        SQLiteQueryBuilder builder = new SQLiteQueryBuilder();
+        builder.setTables(EngineerSQLiteHelper.ENGINEER_TABLE);
+        if (URI_MATCHER.match(uri) == URI_ID) {
+            String id = uri.getPathSegments().get(1);
+            builder.appendWhere("id=" + id);
+        }
+        SQLiteDatabase db = sqLiteHelper.getReadableDatabase();
+        Cursor cursor = builder.query(db, projections, selections, selectionArgs,
+                null, null, sortOrder);
+        cursor.setNotificationUri(getContext().getContentResolver(), uri);
+        return cursor;
     }
 
     @Nullable
@@ -58,7 +71,7 @@ public class EngineerProvider extends ContentProvider {
 
         SQLiteDatabase db = sqLiteHelper.getWritableDatabase();
         long rowId = db.insert(EngineerSQLiteHelper.ENGINEER_TABLE, null, contentValues);
-        Log.d("doanpt","insert result is:" + rowId);
+        Log.d("doanpt", "insert result is:" + rowId);
         if (rowId > 0) {
             Uri result = ContentUris.withAppendedId(CONTENT_URI, rowId);
             getContext().getContentResolver().notifyChange(result, null);
