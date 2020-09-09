@@ -7,6 +7,7 @@ import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -57,6 +58,7 @@ public class EngineerProvider extends ContentProvider {
 
         SQLiteDatabase db = sqLiteHelper.getWritableDatabase();
         long rowId = db.insert(EngineerSQLiteHelper.ENGINEER_TABLE, null, contentValues);
+        Log.d("doanpt","insert result is:" + rowId);
         if (rowId > 0) {
             Uri result = ContentUris.withAppendedId(CONTENT_URI, rowId);
             getContext().getContentResolver().notifyChange(result, null);
